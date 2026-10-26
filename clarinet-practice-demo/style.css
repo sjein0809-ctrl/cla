@@ -1,0 +1,1052 @@
+:root {
+  --bg: #14101f;
+  --bg-card: #241b38;
+  --bg-card-2: #2c2144;
+  --accent: #8a6fff;
+  --accent-2: #ff9f6f;
+  --accent-soft: rgba(138, 111, 255, 0.16);
+  --text: #f5f2fc;
+  --text-dim: #9d93bd;
+  --correct: #4fd18b;
+  --incorrect: #ff6b6b;
+  --shadow: 0 10px 30px -12px rgba(0, 0, 0, 0.55);
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  min-height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.bg-glow {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(600px 400px at 15% -10%, rgba(138, 111, 255, 0.25), transparent 60%),
+    radial-gradient(500px 380px at 100% 10%, rgba(255, 159, 111, 0.14), transparent 55%),
+    radial-gradient(700px 500px at 50% 120%, rgba(79, 209, 139, 0.10), transparent 60%);
+  pointer-events: none;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: calc(env(safe-area-inset-top, 0px) + 18px) 20px 8px;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.topbar h1 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.icon-btn {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  width: 40px;
+  height: 40px;
+  font-size: 1.15rem;
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.icon-btn:active {
+  transform: scale(0.92);
+  background: rgba(255, 255, 255, 0.12);
+}
+
+#app {
+  padding: 8px 20px 48px;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.screen {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  text-align: center;
+}
+
+.screen.active {
+  display: flex;
+  animation: screen-in 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes screen-in {
+  from { opacity: 0; transform: translateY(10px) scale(0.99); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.lead {
+  color: var(--text-dim);
+  line-height: 1.55;
+  margin: 4px 0 0;
+}
+
+.subtitle {
+  color: var(--text-dim);
+  font-size: 0.95rem;
+  margin: -8px 0 4px;
+}
+
+.lang-emoji {
+  font-size: 2.6rem;
+  margin-top: 12px;
+}
+
+.big-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--accent), #6a4fd6);
+  color: white;
+  border: none;
+  border-radius: 16px;
+  padding: 18px 24px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  cursor: pointer;
+  width: 100%;
+  text-align: center;
+  box-shadow: var(--shadow);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
+}
+
+.big-button:active {
+  transform: scale(0.97) translateY(1px);
+  filter: brightness(0.96);
+}
+
+.secondary-button {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  padding: 14px 18px;
+  font-size: 0.98rem;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.secondary-button:active {
+  transform: scale(0.97);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.button-row {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+}
+
+.button-row > * {
+  flex: 1;
+}
+
+/* 홈 화면 옵션 카드 */
+.option-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  background: linear-gradient(180deg, var(--bg-card), var(--bg-card-2));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  padding: 18px 16px;
+  cursor: pointer;
+  text-align: left;
+  box-shadow: var(--shadow);
+  transition: transform 0.16s ease, border-color 0.16s ease, background 0.16s ease;
+}
+
+.option-card:active {
+  transform: scale(0.98);
+}
+
+.option-card--accent {
+  border-color: rgba(138, 111, 255, 0.4);
+  background: linear-gradient(180deg, var(--accent-soft), var(--bg-card-2));
+}
+
+.option-icon {
+  flex: none;
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+}
+
+.option-copy {
+  flex: 1;
+  min-width: 0;
+}
+
+.option-title {
+  font-weight: 700;
+  font-size: 1.02rem;
+  margin-bottom: 2px;
+}
+
+.option-desc {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  line-height: 1.4;
+}
+
+.option-arrow {
+  flex: none;
+  font-size: 1.4rem;
+  color: var(--text-dim);
+}
+
+.note-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  width: 100%;
+}
+
+.note-chip {
+  background: var(--bg-card);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  min-width: 48px;
+  transition: transform 0.12s ease, border-color 0.12s ease;
+}
+
+.note-chip:active {
+  transform: scale(0.94);
+}
+
+.note-chip .octave {
+  font-size: 0.65rem;
+  font-weight: 400;
+  color: var(--text-dim);
+  display: block;
+}
+
+.note-list:empty {
+  display: none;
+}
+
+/* 음 버튼 팔레트: 옥타브마다 한 줄에 12음 */
+.note-palette {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.palette-octave {
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  text-align: left;
+  margin-top: 4px;
+}
+
+.palette-row {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.palette-btn {
+  padding: 9px 0;
+  border-radius: 9px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: var(--bg-card);
+  color: var(--text);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.palette-btn--sharp {
+  background: #17122a;
+  font-size: 0.72rem;
+}
+
+.palette-btn:active {
+  background: var(--accent);
+  transform: scale(0.94);
+}
+
+.palette-btn:disabled {
+  visibility: hidden;
+}
+
+/* 연습 화면 진행 표시 */
+.progress-dots {
+  display: flex;
+  gap: 7px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.progress-dots .dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.14);
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.progress-dots .dot.current {
+  background: var(--accent);
+  transform: scale(1.3);
+}
+
+.progress-dots .dot.correct {
+  background: var(--correct);
+}
+
+.progress-dots .dot.incorrect {
+  background: var(--incorrect);
+}
+
+.target-note {
+  background: radial-gradient(circle at 50% 40%, var(--bg-card-2), var(--bg-card));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 28px;
+  width: 220px;
+  height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow);
+  position: relative;
+  transition: box-shadow 0.25s ease, border-color 0.25s ease, transform 0.15s ease;
+}
+
+.target-note.listening {
+  border-color: rgba(138, 111, 255, 0.5);
+  box-shadow: var(--shadow), 0 0 0 8px rgba(138, 111, 255, 0.08);
+}
+
+.target-note.correct {
+  border-color: rgba(79, 209, 139, 0.6);
+  box-shadow: var(--shadow), 0 0 0 10px rgba(79, 209, 139, 0.12);
+  transform: scale(1.04);
+}
+
+.target-note.incorrect {
+  border-color: rgba(255, 107, 107, 0.6);
+  box-shadow: var(--shadow), 0 0 0 10px rgba(255, 107, 107, 0.1);
+  animation: shake 0.32s ease;
+}
+
+@keyframes shake {
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(5px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(3px); }
+  100% { transform: translateX(0); }
+}
+
+#targetNoteKorean {
+  font-size: 4.5rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.status {
+  font-size: 1.05rem;
+  font-weight: 600;
+  min-height: 1.6em;
+  transition: color 0.15s ease;
+}
+
+.status.correct {
+  color: var(--correct);
+}
+
+.status.incorrect {
+  color: var(--incorrect);
+}
+
+.mic-meter {
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+#micLevelBar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  transition: width 0.05s linear;
+}
+
+/* 결과 화면 */
+.accuracy-ring-wrap {
+  position: relative;
+  width: 140px;
+  height: 140px;
+}
+
+.accuracy-ring {
+  width: 140px;
+  height: 140px;
+  transform: rotate(-90deg);
+}
+
+.accuracy-ring-track {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.08);
+  stroke-width: 12;
+}
+
+.accuracy-ring-fill {
+  fill: none;
+  stroke: var(--accent-2);
+  stroke-width: 12;
+  stroke-linecap: round;
+  stroke-dasharray: 377;
+  stroke-dashoffset: 377;
+  transition: stroke-dashoffset 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.accuracy-ring-label {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.accuracy-ring-label span {
+  font-size: 1.9rem;
+  font-weight: 800;
+}
+
+.accuracy-ring-label label {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+}
+
+.results-grid {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+}
+
+.result-card {
+  flex: 1;
+  background: var(--bg-card);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 16px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.result-card span {
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+
+.result-card.correct span { color: var(--correct); }
+.result-card.incorrect span { color: var(--incorrect); }
+
+.result-card label {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+}
+
+.overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 6, 20, 0.6);
+  backdrop-filter: blur(2px);
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 10;
+}
+
+.overlay.active {
+  display: flex;
+  animation: overlay-in 0.2s ease;
+}
+
+@keyframes overlay-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.settings-panel {
+  background: var(--bg-card);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 22px 22px 0 0;
+  padding: 24px 20px calc(24px + env(safe-area-inset-bottom, 0px));
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-shadow: 0 -20px 40px -20px rgba(0, 0, 0, 0.6);
+}
+
+.settings-panel h2 {
+  margin: 0 0 4px;
+}
+
+.settings-panel label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.9rem;
+  color: var(--text-dim);
+  text-align: left;
+}
+
+.settings-panel select,
+.settings-panel input[type="text"] {
+  background: var(--bg);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  padding: 10px;
+  color: var(--text);
+  font-size: 1rem;
+}
+
+.hint {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  line-height: 1.4;
+  text-align: left;
+}
+
+.pitch-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.pitch-grid button {
+  padding: 12px 0;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 1rem;
+  cursor: pointer;
+  transition: transform 0.12s ease, background 0.12s ease, border-color 0.12s ease;
+}
+
+.pitch-grid button:active {
+  transform: scale(0.93);
+}
+
+.pitch-grid button.selected {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.octave-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+
+.octave-row span {
+  font-size: 1.3rem;
+  min-width: 24px;
+}
+
+/* 키보드 운지 입력 패널 */
+.key-panel[hidden],
+.hint[hidden] {
+  display: none;
+}
+
+.key-panel {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  width: 100%;
+}
+
+.keycap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  padding: 8px 2px;
+  background: var(--bg-card);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  color: var(--text);
+  cursor: pointer;
+  transition: transform 0.08s ease, background 0.08s ease, border-color 0.08s ease;
+}
+
+.keycap-key {
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.keycap-name {
+  font-size: 0.6rem;
+  color: var(--text-dim);
+}
+
+.keycap.down {
+  background: var(--accent);
+  border-color: var(--accent);
+  transform: translateY(1px) scale(0.97);
+}
+
+.keycap.down .keycap-name {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.keycap.latched {
+  border-color: var(--accent-2);
+}
+
+.keycap--blow {
+  grid-column: 1 / -1;
+  flex-direction: row;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px;
+}
+
+.target-note-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.target-octave {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-dim);
+}
+
+.kb-layout {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  width: 100%;
+}
+
+.kb-layout[hidden] {
+  display: none;
+}
+
+.clarinet-wrap {
+  flex: none;
+  width: 175px;
+}
+
+.clarinet-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.clarinet-svg .cl-body {
+  fill: #33284f;
+  stroke: rgba(255, 255, 255, 0.18);
+  stroke-width: 1;
+}
+
+.clarinet-svg .cl-band {
+  fill: #b9b2d6;
+  opacity: 0.85;
+}
+
+.clarinet-svg .cl-ring {
+  fill: none;
+  stroke: #b9b2d6;
+  stroke-width: 1.6;
+  pointer-events: none;
+}
+
+.clarinet-svg .cl-rod {
+  stroke: #b9b2d6;
+  stroke-width: 1.4;
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+.clarinet-svg .cl-pad {
+  fill: #2a2140;
+  stroke: #b9b2d6;
+  stroke-width: 1.2;
+  opacity: 0.7;
+}
+
+.clarinet-svg .ck {
+  cursor: pointer;
+}
+
+.clarinet-svg .ck circle:not(.cl-ring),
+.clarinet-svg .ck rect,
+.clarinet-svg .ck path {
+  fill: #1c1530;
+  stroke: rgba(255, 255, 255, 0.4);
+  stroke-width: 1.2;
+  transition: fill 0.1s ease, stroke 0.1s ease;
+}
+
+.clarinet-svg .ck text {
+  fill: var(--text-dim);
+  font-size: 8px;
+  font-weight: 600;
+  pointer-events: none;
+}
+
+.clarinet-svg .ck text.in-key {
+  font-size: 7.5px;
+}
+
+.clarinet-svg .ck.hint:not(.on) circle:not(.cl-ring),
+.clarinet-svg .ck.hint:not(.on) rect {
+  stroke: var(--accent-2);
+  stroke-width: 2.2;
+  fill: rgba(255, 159, 111, 0.28);
+}
+
+.fingering-hint {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  margin: 0;
+  font-size: 0.82rem;
+}
+
+.fingering-hint[hidden] {
+  display: none;
+}
+
+.fh-label {
+  color: var(--text-dim);
+  margin-right: 2px;
+}
+
+.fh-chip {
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1.5px solid var(--accent-2);
+  background: rgba(255, 159, 111, 0.16);
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.keycap.hint:not(.down) {
+  border-color: var(--accent-2);
+  background: rgba(255, 159, 111, 0.16);
+}
+
+.cam-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+}
+
+.cam-panel[hidden] {
+  display: none;
+}
+
+.cam-view {
+  position: relative;
+  width: 100%;
+  max-width: 360px;
+  margin: 0 auto;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #000;
+  transform: scaleX(-1); /* 거울처럼 */
+}
+
+.cam-view video,
+.cam-view canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.cam-view canvas {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  cursor: crosshair;
+}
+
+.cam-status {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  text-align: center;
+}
+
+.cam-row,
+.cam-breath-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+}
+
+.cam-row .seg-btn {
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+}
+
+.breath-meter {
+  position: relative;
+  flex: 1;
+  max-width: 220px;
+  height: 8px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+}
+
+.breath-bar {
+  height: 100%;
+  width: 0;
+  background: var(--text-dim);
+}
+
+.breath-bar.on {
+  background: var(--accent-2);
+}
+
+.breath-mark {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: #fff;
+}
+
+.breath-thr {
+  width: 90px;
+}
+
+.cam-row .seg-btn[hidden] {
+  display: none;
+}
+
+/* 카메라 모드: 키 패널은 BLOW 만 남긴다 */
+body.cam-mode .keycap:not(.keycap--blow) {
+  display: none;
+}
+
+body.cam-mode .key-panel {
+  grid-template-columns: 1fr;
+}
+
+.session-seg {
+  align-self: center;
+  margin: 0 auto;
+}
+
+.session-desc {
+  text-align: center;
+  margin: -4px 0 4px;
+}
+
+.seg-btn--board {
+  margin-left: 6px;
+}
+
+.clarinet-svg .ck.on circle:not(.cl-ring),
+.clarinet-svg .ck.on rect {
+  fill: var(--accent);
+  stroke: #cfc2ff;
+}
+
+.clarinet-svg .ck.mp.on path {
+  fill: var(--accent-2);
+  stroke: #ffd8c2;
+}
+
+.clarinet-svg .ck.on text {
+  fill: #fff;
+}
+
+.clarinet-svg .note-txt {
+  fill: var(--text-dim);
+  font-size: 7px;
+  opacity: 0.7;
+}
+
+/* 키보드 연습 화면: 스크롤 없이 한 화면에 (왼쪽 클라리넷 모형 | 오른쪽 나머지) */
+body.kb-practice #app {
+  max-width: 760px;
+  padding-top: 0;
+  padding-bottom: 12px;
+}
+
+body.kb-practice .topbar {
+  padding-top: calc(env(safe-area-inset-top, 0px) + 10px);
+  padding-bottom: 4px;
+  max-width: 760px;
+}
+
+body.kb-practice #screen-practice.active {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  column-gap: 20px;
+  row-gap: 6px;
+  align-items: start;
+  justify-items: stretch;
+}
+
+body.kb-practice #screen-practice > * {
+  grid-column: 2;
+}
+
+body.kb-practice .kb-layout {
+  display: contents;
+}
+
+body.kb-practice .kb-layout[hidden] {
+  display: none;
+}
+
+body.kb-practice .clarinet-wrap {
+  grid-column: 1;
+  grid-row: 1 / span 10;
+  width: auto;
+}
+
+body.kb-practice .clarinet-svg {
+  width: auto;
+  height: min(calc(100dvh - 90px), 600px);
+}
+
+body.kb-practice .progress-dots {
+  justify-content: center;
+}
+
+body.kb-practice .target-note {
+  width: 116px;
+  height: 116px;
+  justify-self: center;
+  border-radius: 22px;
+}
+
+body.kb-practice #targetNoteKorean {
+  font-size: 2.7rem;
+}
+
+body.kb-practice .target-octave {
+  font-size: 0.85rem;
+}
+
+body.kb-practice .status {
+  min-height: 1.3em;
+  font-size: 0.98rem;
+  margin: 0;
+}
+
+body.kb-practice .hint {
+  font-size: 0.7rem;
+  margin: 0;
+  text-align: center;
+}
+
+body.kb-practice .key-panel {
+  grid-template-columns: repeat(6, 1fr);
+  gap: 5px;
+}
+
+body.kb-practice .keycap {
+  padding: 5px 2px;
+}
+
+body.kb-practice .keycap-key {
+  font-size: 0.85rem;
+}
+
+body.kb-practice .keycap--blow {
+  padding: 8px;
+}
+
+body.kb-practice .secondary-button {
+  padding: 11px 14px;
+}
+
+/* 키 입력 방식 전환 스위치 */
+.seg {
+  display: inline-flex;
+  align-self: center;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  padding: 2px;
+}
+
+.seg[hidden] {
+  display: none;
+}
+
+.seg-btn {
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 5px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.seg-btn.active {
+  background: var(--accent);
+  color: #fff;
+}
+
+body.kb-practice .seg {
+  justify-self: center;
+}
+
+.progress-dots[hidden] {
+  display: none;
+}
