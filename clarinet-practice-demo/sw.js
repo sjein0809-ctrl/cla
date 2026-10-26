@@ -1,4 +1,4 @@
-const CACHE_NAME = "instrument-practice-demo-v23";
+const CACHE_NAME = "instrument-practice-demo-v24";
 const ASSETS = [
   "./",
   "./index.html",
@@ -12,6 +12,7 @@ const ASSETS = [
   "./js/clarinetDiagram.js",
   "./js/boardSerial.js",
   "./js/cameraInput.js",
+  "./js/handInput.js",
   "./manifest.webmanifest",
 ];
 

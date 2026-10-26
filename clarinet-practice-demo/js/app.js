@@ -6,6 +6,7 @@ import { BoardSerial, boardSupported } from "./boardSerial.js";
 import { buildClarinet } from "./clarinetDiagram.js";
 import { fingeringFor, KEY_DEFS } from "./fingering.js";
 import { CameraInput } from "./cameraInput.js";
+import { HandInput } from "./handInput.js";
 
 const TOLERANCE_CENTS = 45;
 const HOLD_MS = 300;
@@ -41,7 +42,7 @@ const settings = {
   instrument: storedInstrument && INSTRUMENTS[storedInstrument] ? storedInstrument : "clarinet_bb",
   lang: SUPPORTED_LANGS.includes(storedLang) ? storedLang : DEFAULT_LANG,
   // mic: 실제 악기 소리 / keyboard: 키보드·화면·USB 보드 / camera: 색 스티커 모형을 카메라로
-  inputMode: ["keyboard", "camera"].includes(localStorage.getItem("inputMode")) ? localStorage.getItem("inputMode") : "mic",
+  inputMode: ["keyboard", "camera", "hand"].includes(localStorage.getItem("inputMode")) ? localStorage.getItem("inputMode") : "mic",
   keyMode: localStorage.getItem("keyMode") === "hold" ? "hold" : "toggle",
   // practice: 눌러야 할 키를 보여줌 / test: 힌트 없음
   sessionMode: localStorage.getItem("sessionMode") === "test" ? "test" : "practice",
@@ -68,7 +69,8 @@ function applyKeyModeUI() {
   el("keyModeHoldBtn").classList.toggle("active", settings.keyMode === "hold");
   const prefix = freePlay ? "freeHint" : "keyboardHint";
   const hintKey = prefix + (settings.keyMode === "hold" ? "Hold" : "Toggle");
-  el("keyboardHintText").textContent = t(settings.inputMode === "camera" ? "cameraHint" : hintKey, settings.lang);
+  const modeHint = { camera: "cameraHint", hand: "handHint" }[settings.inputMode];
+  el("keyboardHintText").textContent = t(modeHint || hintKey, settings.lang);
   if (camInput) camInput.updateTexts();
   if (kbInput) kbInput.setMode(settings.keyMode);
   applyBoardUI();
@@ -139,6 +141,7 @@ function renderInputModeOptions(lang) {
     ["mic", "inputModeMic"],
     ["keyboard", "inputModeKeyboard"],
     ["camera", "inputModeCamera"],
+    ["hand", "inputModeHand"],
   ].forEach(([value, key]) => {
     const opt = document.createElement("option");
     opt.value = value;
@@ -232,7 +235,7 @@ el("settingsSaveBtn").addEventListener("click", () => {
   localStorage.setItem("instrument", settings.instrument);
 
   const mode = el("inputModeSelect").value;
-  settings.inputMode = ["keyboard", "camera"].includes(mode) ? mode : "mic";
+  settings.inputMode = ["keyboard", "camera", "hand"].includes(mode) ? mode : "mic";
   localStorage.setItem("inputMode", settings.inputMode);
 
   setKeyMode(el("keyModeSelect").value);
@@ -632,12 +635,19 @@ function stopKeyboardInput() {
 let camInput = null;
 
 function attachCamera() {
-  const on = settings.inputMode === "camera";
+  const mode = settings.inputMode;
+  const on = mode === "camera" || mode === "hand";
   el("camPanel").hidden = !on;
   document.body.classList.toggle("cam-mode", on);
   if (!on) return;
+  // 스티커 모형(카메라)과 손 모양은 같은 자리를 쓰므로, 방식이 바뀌면 새로 만든다
+  const Cls = mode === "hand" ? HandInput : CameraInput;
+  if (camInput && !(camInput instanceof Cls)) {
+    camInput.stop();
+    camInput = null;
+  }
   if (!camInput) {
-    camInput = new CameraInput(
+    camInput = new Cls(
       el("camPanel"),
       (keys, blow) => {
         if (kbInput) kbInput.setExternal(keys, blow);

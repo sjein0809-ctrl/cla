@@ -98,6 +98,7 @@ export class CameraInput {
       </div>
       <p class="cam-status"></p>
       <div class="cam-row">
+        <button type="button" class="seg-btn cam-find"></button>
         <button type="button" class="seg-btn cam-calib"></button>
         <button type="button" class="seg-btn cam-skip" hidden></button>
         <label class="cam-breath"><input type="checkbox" class="cam-auto-on"> <span class="cam-auto-label"></span></label>
@@ -112,6 +113,11 @@ export class CameraInput {
     this.overlay = q(".cam-overlay");
     this.statusEl = q(".cam-status");
     this.calibBtn = q(".cam-calib");
+    this.findBtn = q(".cam-find");
+    this.findBtn.addEventListener("click", (e) => {
+      e.currentTarget.blur();
+      this.requestAutoFind();
+    });
     this.skipBtn = q(".cam-skip");
     this.breathOn = q(".cam-breath-on");
     this.breathBar = q(".breath-bar");
@@ -157,6 +163,7 @@ export class CameraInput {
 
   updateTexts() {
     this.calibBtn.textContent = this.tr(this.calibStep >= 0 ? "camCalibDone" : "camCalibBtn");
+    this.findBtn.textContent = this.tr("camFindBtn");
     this.skipBtn.textContent = this.tr("camSkip");
     this.host.querySelector(".cam-breath-label").textContent = this.tr("camBreath");
     this.host.querySelector(".cam-auto-label").textContent = this.tr("camAuto");
@@ -173,7 +180,7 @@ export class CameraInput {
       const key = step.kind === "back" ? "camCalibBack" : step.optional ? "camCalibSide" : "camCalibFront";
       this.statusEl.textContent = this.tr(key, { name: step.name });
     } else if (!this.spots.some((s) => s.kind === "front")) {
-      this.statusEl.textContent = this.tr("camNeedCalib");
+      this.statusEl.textContent = this.tr("camFinding");
     } else {
       this.statusEl.textContent = this.tr("camReady");
     }
@@ -313,6 +320,12 @@ export class CameraInput {
     this.procCtx.drawImage(v, 0, 0, w, h);
     this.lastImage = this.procCtx.getImageData(0, 0, w, h);
 
+    // 앞쪽 스티커 위치를 아직 모르면 초록 스티커를 자동으로 찾는다 (0.5초마다)
+    if (this.calibStep < 0 && (this.autoFindPending || !this.spots.some((s) => s.kind === "front"))) {
+      this.findTick = (this.findTick || 0) + 1;
+      if (this.findTick % 10 === 1) this.tryAutoFind();
+    }
+
     let keys = 0;
     if (this.calibStep < 0) {
       this.track();
@@ -326,6 +339,80 @@ export class CameraInput {
     // 자동 소리: 손가락이 모형에 하나라도 올라가 있으면 분다고 친다 (아무 키도 안 누르는 솔4 만은 마이크/Space 로)
     const auto = this.autoBlow && seen !== 0;
     this.onChange(this.keys, this.blowing || auto);
+  }
+
+  // ---------- 초록 스티커 자동 찾기 ----------
+  // 화면에서 형광 초록 덩어리를 찾아 위에서부터 L1 L2 L3 R1 R2 R3 으로 정한다
+  requestAutoFind() {
+    this.calibStep = -1;
+    this.autoFindPending = true;
+    this.findTick = 0;
+    this.setStatus(this.tr("camFinding"));
+  }
+
+  tryAutoFind() {
+    const blobs = this.findGreenBlobs();
+    if (blobs.length < 6) {
+      this.setStatus(this.tr("camFindFew", { n: blobs.length }));
+      return;
+    }
+    // 가장 큰 6개를 골라 위에서 아래 순서로
+    const six = blobs.sort((a, b) => b.count - a.count).slice(0, 6).sort((a, b) => a.y - b.y);
+    const names = ["L1", "L2", "L3", "R1", "R2", "R3"];
+    const bits = [KEY.L1, KEY.L2, KEY.L3, KEY.R1, KEY.R2, KEY.R3];
+    const front = six.map((b, i) => ({
+      x: b.x, y: b.y, r: Math.max(3, Math.min(25, Math.sqrt(b.count / Math.PI) * 0.8)),
+      ref: b.ref, bit: bits[i], name: names[i], kind: "front", on: false,
+    }));
+    // 손으로 지정해 둔 뒤쪽/옆 키는 그대로 둔다
+    const others = this.spots.filter((s) => !bits.includes(s.bit));
+    this.spots = front.concat(others);
+    saveJson(STORE_KEY, this.spots);
+    this.autoFindPending = false;
+    this.setStatus();
+  }
+
+  findGreenBlobs() {
+    const { data, width, height } = this.lastImage;
+    const step = 2; // 2픽셀마다 한 칸으로 줄여서 덩어리를 찾는다
+    const gw = Math.floor(width / step), gh = Math.floor(height / step);
+    const mask = new Uint8Array(gw * gh);
+    for (let gy = 0; gy < gh; gy++) {
+      for (let gx = 0; gx < gw; gx++) {
+        const i = (gy * step * width + gx * step) * 4;
+        const r = data[i], g = data[i + 1], b = data[i + 2];
+        // 형광 초록: 초록이 밝고 빨강·파랑보다 확실히 센 색
+        if (g > 90 && g > r * 1.35 && g > b * 1.25) mask[gy * gw + gx] = 1;
+      }
+    }
+    const blobs = [];
+    const stack = [];
+    for (let start = 0; start < mask.length; start++) {
+      if (mask[start] !== 1) continue;
+      let count = 0, sx = 0, sy = 0, rs = 0, gs = 0, bs = 0;
+      let minX = Infinity, maxX = -1, minY = Infinity, maxY = -1;
+      mask[start] = 2;
+      stack.push(start);
+      while (stack.length) {
+        const k = stack.pop();
+        const gx = k % gw, gy = (k / gw) | 0;
+        count++; sx += gx; sy += gy;
+        minX = Math.min(minX, gx); maxX = Math.max(maxX, gx);
+        minY = Math.min(minY, gy); maxY = Math.max(maxY, gy);
+        const i = (gy * step * width + gx * step) * 4;
+        rs += data[i]; gs += data[i + 1]; bs += data[i + 2];
+        if (gx > 0 && mask[k - 1] === 1) { mask[k - 1] = 2; stack.push(k - 1); }
+        if (gx < gw - 1 && mask[k + 1] === 1) { mask[k + 1] = 2; stack.push(k + 1); }
+        if (gy > 0 && mask[k - gw] === 1) { mask[k - gw] = 2; stack.push(k - gw); }
+        if (gy < gh - 1 && mask[k + gw] === 1) { mask[k + gw] = 2; stack.push(k + gw); }
+      }
+      const bw = maxX - minX + 1, bh = maxY - minY + 1;
+      // 너무 작거나(잡음) 너무 크거나(초록 물건) 길쭉한 것은 스티커가 아니다
+      if (count < 4 || count > 900 || Math.max(bw, bh) > 2.5 * Math.min(bw, bh)) continue;
+      const [cr, cg] = chroma(rs / count, gs / count, bs / count);
+      blobs.push({ x: (sx / count) * step, y: (sy / count) * step, count: count * step * step, ref: [cr, cg] });
+    }
+    return blobs;
   }
 
   // 스티커마다 가장 가까운 다른 스티커까지 거리 (찾는 범위가 이웃 스티커까지 넘어가지 않게)

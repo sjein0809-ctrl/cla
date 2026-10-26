@@ -814,6 +814,14 @@ html, body {
   cursor: crosshair;
 }
 
+.hand-map {
+  margin: 0;
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  text-align: center;
+  line-height: 1.4;
+}
+
 .cam-status {
   margin: 0;
   font-size: 0.8rem;
